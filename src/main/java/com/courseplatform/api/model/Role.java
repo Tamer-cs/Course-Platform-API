@@ -2,5 +2,6 @@ package com.courseplatform.api.model;
 
 public enum Role {
     ROLE_USER,
-    ROLE_ADMIN
+    ROLE_ADMIN,
+    ROLE_INSTRUCTOR
 }

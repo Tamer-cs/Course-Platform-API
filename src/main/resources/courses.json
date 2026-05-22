@@ -1,0 +1,148 @@
+[
+  {
+    "id": "physics-101",
+    "title": "Introduction to Physics",
+    "description": "A foundational course covering motion, forces, energy, and the language of classical physics.",
+    "topics": [
+      {
+        "id": "kinematics",
+        "title": "Kinematics",
+        "description": "How we describe motion, displacement, velocity, and acceleration before talking about the causes of motion.",
+        "subtopics": [
+          {
+            "id": "velocity",
+            "title": "Velocity",
+            "content": "# Velocity\n\nVelocity describes the **rate of change of displacement** with respect to time. It tells us not only how fast an object moves, but also the direction of that motion, which is why it is a vector quantity. In Physics, velocity is one of the first ideas used to distinguish a simple description of speed from a more precise description of movement.\n\nWhen you write a model for motion, velocity is often expressed as `v = d / t` for average motion, where `d` is displacement and `t` is time. That equation is useful in introductory Mathematics because it connects a measurable change in position to a measurable interval of time. In real situations, the velocity of an object may change continuously, which leads to the idea of instantaneous velocity and the derivative of displacement with respect to time.\n\nUnderstanding velocity also helps students reason about momentum, acceleration, and energy. A car moving east at 20 m/s has a very different velocity from a car moving west at 20 m/s, even though the speed is the same. That direction-sensitive view of motion is essential in later study of Newton's laws and gravitational motion."
+          },
+          {
+            "id": "acceleration",
+            "title": "Acceleration",
+            "content": "# Acceleration\n\nAcceleration is the **rate of change of velocity** over time. It captures how an object's motion evolves, whether the object is speeding up, slowing down, or changing direction. In Physics, acceleration is central because it connects motion to force through Newton's second law.\n\nA common introductory formula is `a = (v_f - v_i) / t`, where the final velocity `v_f` and initial velocity `v_i` are compared across a time interval `t`. That equation shows why acceleration is closely tied to change, which makes it a natural bridge between Physics and Mathematics. When students later study calculus, they see acceleration as a second derivative of position or the first derivative of velocity.\n\nAcceleration can be positive, negative, or zero, and each case tells a different story about an object's motion. A ball in free fall accelerates because gravity changes its velocity continuously. A train braking at a station has negative acceleration, and a satellite moving at constant speed in a curved orbit can still accelerate because its velocity direction changes."
+          },
+          {
+            "id": "displacement",
+            "title": "Displacement",
+            "content": "# Displacement\n\nDisplacement is the straight-line change in position from a starting point to an ending point, including direction. Unlike distance, which measures the total path traveled, displacement focuses on the net change in location. This makes displacement one of the cleanest ideas in Physics for describing motion with precision.\n\nIf a student walks 3 meters east and then 3 meters west, the total distance is 6 meters, but the displacement is zero because the person ended where they started. That distinction matters when we build equations for velocity and acceleration, since many formulas use displacement rather than path length. In Mathematics, displacement is a useful variable because it can be plotted on a graph against time to show motion clearly.\n\nDisplacement also appears in concepts such as work, energy, and momentum, especially when analyzing a moving object across a defined coordinate system. It becomes even more important in calculus, where small changes in displacement are studied through limits and derivatives to understand continuous motion."
+          }
+        ]
+      },
+      {
+        "id": "forces-and-newton-laws",
+        "title": "Forces and Newton's Laws",
+        "description": "How forces change motion, why inertia matters, and how Newton explained the behavior of objects.",
+        "subtopics": [
+          {
+            "id": "newtons-first-law",
+            "title": "Newton's First Law",
+            "content": "# Newton's First Law\n\nNewton's first law says that an object at rest stays at rest, and an object in motion stays in motion with the same velocity unless acted on by an unbalanced force. This is the law of inertia, and it is one of the most intuitive yet important ideas in Physics.\n\nInertia is the tendency of matter to resist changes in motion. A heavy truck and a tennis ball both have inertia, but the truck has much more because it contains more mass. That is why it takes a larger force to start, stop, or redirect a massive object. When we analyze everyday events, such as a book sliding on a desk or a passenger lurching forward when a car stops, we are really seeing inertia in action.\n\nThis law helps explain why force is not needed to maintain motion in an ideal frictionless environment. It also lays the foundation for free-body diagrams and for the more advanced study of momentum, energy, and acceleration."
+          },
+          {
+            "id": "free-body-diagrams",
+            "title": "Free-Body Diagrams",
+            "content": "# Free-Body Diagrams\n\nA free-body diagram is a simple drawing that isolates an object and shows all the forces acting on it. It is a practical tool in Physics because it turns a real-world motion problem into a clear equation problem. By identifying the forces first, students can reason about acceleration instead of guessing what happens.\n\nTypical forces include gravity, normal force, tension, friction, and applied force. Each force has a direction and a magnitude, and those vectors can be combined to find the net force. In many cases, Newton's second law can then be written as `F_net = ma`, where the net force causes an acceleration. This equation connects the diagram to the actual motion of the object.\n\nFree-body diagrams also support Mathematics skills such as vector decomposition and graph-based interpretation. They teach students to identify variables, choose a coordinate system, and use equations consistently rather than relying on memorized patterns. That habit becomes essential in mechanics, momentum problems, and later engineering contexts."
+          },
+          {
+            "id": "friction-and-tension",
+            "title": "Friction and Tension",
+            "content": "# Friction and Tension\n\nFriction and tension are two forces that appear in nearly every introductory Mechanics problem. Friction acts along surfaces and resists relative motion, while tension is the pulling force transmitted through a rope, cable, or string. Both are essential for understanding how real systems move instead of idealized objects that ignore resistance.\n\nFriction depends on the nature of the surfaces and the normal force between them. Static friction prevents motion from starting, while kinetic friction acts after motion has begun. Tension, by contrast, often appears when two or more objects are connected and must share the same acceleration. That is why pulley problems often become equations involving several variables and one shared motion constraint.\n\nThese ideas are also useful for understanding energy transfer and momentum changes. If a block slides across a rough table, friction turns mechanical energy into thermal energy. If a rope pulls a cart, tension can accelerate the cart while still allowing students to use Newton's laws in a structured way."
+          }
+        ]
+      },
+      {
+        "id": "energy-and-momentum",
+        "title": "Energy and Momentum",
+        "description": "A study of work, energy, momentum, collisions, and the role of gravity in motion.",
+        "subtopics": [
+          {
+            "id": "work-and-energy",
+            "title": "Work and Energy",
+            "content": "# Work and Energy\n\nWork is the transfer of energy when a force acts through a displacement, and it is one of the most useful ideas in Physics. The formula `W = Fd cos(theta)` shows that the amount of work depends on the force, the displacement, and the angle between them. That relationship makes work a natural bridge between motion and energy.\n\nEnergy is the capacity to do work. Kinetic energy comes from motion, while potential energy is often associated with position in a gravitational field or with the deformation of a spring. These forms of energy can transform into one another without being lost, which is why conservation of energy is such a powerful principle.\n\nStudents often connect work and energy to graphical thinking as well. A force-displacement graph can reveal how much work is done over a path, and a motion graph can help explain how kinetic energy changes as velocity changes. This is one reason the topic remains central in both Physics and Mathematics."
+          },
+          {
+            "id": "momentum-and-collisions",
+            "title": "Momentum and Collisions",
+            "content": "# Momentum and Collisions\n\nMomentum describes the quantity of motion an object has, and it is calculated as `p = mv`, where mass and velocity combine into a single variable. Because velocity includes direction, momentum does as well. This makes momentum especially useful when analyzing collisions and interactions between objects.\n\nIn a closed system, total momentum is conserved, which means the total before a collision equals the total after the collision. That idea helps explain how objects can bounce, stick together, or rebound with changed velocities while still obeying a simple conservation equation. In many classroom examples, momentum problems are solved by writing one equation for each direction and then identifying the unknown variable.\n\nMomentum is also related to force through impulse. A larger force acting over a longer time creates a larger change in momentum. This connection is why airbags, helmets, and landing surfaces reduce injury: they spread out the change in motion and lower the average force involved."
+          },
+          {
+            "id": "gravitation-and-orbits",
+            "title": "Gravitation and Orbits",
+            "content": "# Gravitation and Orbits\n\nGravity is the attractive force between masses, and it shapes everything from falling objects to planetary motion. On Earth, gravity causes objects to accelerate downward at about `9.8 m/s^2`, though the exact value can vary slightly with location. In Physics, gravity gives us one of the clearest real-world examples of a force that continuously changes velocity.\n\nOrbits are possible because gravity pulls a moving object inward while the object's inertia carries it forward. That balance produces curved motion around a planet, moon, or star. If the balance changes, the orbit changes as well. Students can model this with equations that relate velocity, radius, and gravitational force.\n\nGravity also appears in energy calculations. An object lifted above the ground stores gravitational potential energy, and that energy can convert into kinetic energy during a fall. This makes gravity a natural topic for connecting force, displacement, energy, and acceleration in one coherent story."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mathematics-101",
+    "title": "Foundations of Mathematics",
+    "description": "A practical introduction to algebra, functions, graphs, limits, and early calculus ideas.",
+    "topics": [
+      {
+        "id": "algebraic-thinking",
+        "title": "Algebraic Thinking",
+        "description": "How variables, equations, and symbolic reasoning help model patterns and solve problems.",
+        "subtopics": [
+          {
+            "id": "variables-and-equations",
+            "title": "Variables and Equations",
+            "content": "# Variables and Equations\n\nAlgebra begins with variables, which are symbols that stand for numbers we may not know yet. When a variable appears inside an equation, it gives us a compact way to represent a relationship without naming every value explicitly. That flexibility is one reason algebra is so important in Mathematics and in every later science course.\n\nAn equation states that two expressions are equal. Solving an equation means finding the value of the variable that makes the statement true. For example, `2x + 3 = 11` can be solved by subtracting 3 and dividing by 2, giving `x = 4`. That process seems simple, but it builds the logic used in much larger models involving force, energy, graphing, and calculus.\n\nVariables also help students describe patterns, formulas, and motion. A single equation can represent a changing situation, whether that situation is a population growth model, a Physics law, or a finance rule. The key skill is understanding what each variable stands for and how changing one value affects the others."
+          },
+          {
+            "id": "factoring-and-simplifying",
+            "title": "Factoring and Simplifying",
+            "content": "# Factoring and Simplifying\n\nFactoring is the process of rewriting an expression as a product of simpler parts, while simplifying means reducing an expression to a cleaner equivalent form. Both are central skills in Algebra because they reveal structure that is not obvious at first glance. When students factor an expression, they often make later equation solving much easier.\n\nFor example, `x^2 + 5x + 6` can be factored into `(x + 2)(x + 3)`. That transformation shows the roots of the expression and helps connect algebraic form to graphical meaning. On a graph, factoring can identify where a function crosses the x-axis. In this way, symbolic manipulation and visual interpretation support each other.\n\nFactoring also matters in more advanced Mathematics because it appears in derivatives, limits, and rational expressions. A simplified form can make rate of change calculations easier and can reduce computational errors. Learning to factor well is a practical way to build confidence with equations, variables, and patterns."
+          },
+          {
+            "id": "systems-of-equations",
+            "title": "Systems of Equations",
+            "content": "# Systems of Equations\n\nA system of equations is a collection of two or more equations that share the same variables. The goal is to find values that satisfy all the equations at once. This is useful whenever a situation has multiple constraints, such as cost and quantity, velocity and time, or supply and demand.\n\nSystems can be solved by substitution, elimination, or graphing. Graphing is especially helpful because it lets students see the point where two lines intersect. That intersection represents the solution to the system. In a linear system, each equation can be thought of as a line on a graph, and the shared solution is the point that makes both equations true.\n\nThis topic supports real-world modeling because many problems are not described by a single variable. Instead, they use several variables connected by multiple equations. Whether the context is Physics, business, or engineering, systems of equations give students a structured method for solving complex problems with clear logical steps."
+          }
+        ]
+      },
+      {
+        "id": "functions-and-graphs",
+        "title": "Functions and Graphs",
+        "description": "How input-output relationships and visual graphs describe change, slope, and patterns.",
+        "subtopics": [
+          {
+            "id": "function-notation",
+            "title": "Function Notation",
+            "content": "# Function Notation\n\nA function is a rule that assigns each input exactly one output. Function notation such as `f(x)` helps us write that rule clearly and work with it efficiently. In Mathematics, functions are the language of change because they show how one variable depends on another.\n\nThe notation itself tells us that `x` is the input and `f(x)` is the output. For example, if `f(x) = 2x + 1`, then substituting `x = 3` gives `f(3) = 7`. This idea is simple but powerful, because it allows students to evaluate equations, model real situations, and compare behaviors across different inputs.\n\nFunctions show up everywhere in science. A Physics model might map time to displacement, while a business model might map units sold to revenue. Later in calculus, functions become the objects whose slopes and limits we study. Learning notation early makes those later ideas much easier to understand."
+          },
+          {
+            "id": "slope-and-linearity",
+            "title": "Slope and Linearity",
+            "content": "# Slope and Linearity\n\nSlope measures the rate of change of a line. It is often written as `m = (y2 - y1) / (x2 - x1)`, which compares vertical change to horizontal change. In a graph, slope tells us whether a relationship is increasing, decreasing, steep, or flat. That makes it one of the most important ideas in Algebra and introductory Mathematics.\n\nA linear function has a constant slope, so its graph is a straight line. This predictability is useful when modeling relationships that change at a steady rate, such as cost per item or constant velocity in Physics. The slope can also be interpreted as a rate of change, which creates a bridge to derivative ideas later in calculus.\n\nLinearity is valuable because it gives a first approximation to more complicated behavior. Even when a real system is not perfectly linear, a line can often describe a small interval well enough to be useful. That is why slope appears in equations, graphs, and applied problem solving across many fields."
+          },
+          {
+            "id": "transformations-and-graphs",
+            "title": "Transformations and Graphs",
+            "content": "# Transformations and Graphs\n\nGraph transformations show how the graph of a function changes when we shift, stretch, reflect, or compress it. These operations help students see that algebra is not only about symbols; it is also about shape and structure. By observing how a graph moves, learners can connect an equation to a visual pattern.\n\nFor example, changing `f(x)` to `f(x) + 3` moves the graph upward by 3 units, while changing it to `f(x - 2)` shifts it to the right. These changes are small in notation but large in meaning. They help explain how variables interact and why the same base function can produce many related graphs.\n\nTransformations are important in applied Mathematics because real-world data rarely appears in a perfect form. A graph of motion, energy, or population change may be shifted or stretched depending on the context. Understanding transformations prepares students for curve analysis, function behavior, and the more advanced graph interpretations used in calculus."
+          }
+        ]
+      },
+      {
+        "id": "calculus-basics",
+        "title": "Calculus Basics",
+        "description": "An introduction to limits, derivatives, and the mathematics of continuous change.",
+        "subtopics": [
+          {
+            "id": "limits-and-continuity",
+            "title": "Limits and Continuity",
+            "content": "# Limits and Continuity\n\nA limit describes what value a function approaches as the input gets closer and closer to some point. Limits are the language of calculus because they allow us to reason about change that happens continuously rather than in jumps. In Mathematics, this idea gives formal meaning to many intuitive statements about approaching a value.\n\nContinuity means that a function has no breaks, gaps, or sudden jumps at a point. A continuous graph can often be drawn without lifting the pencil from the page. This property is useful because many physical processes, such as motion, energy transfer, and temperature change, behave smoothly over time.\n\nLimits also help explain why derivative formulas work. Before we can talk about exact slope at a point, we need to understand how nearby values behave. That is why the limit concept is often taught before rates of change. It creates the foundation for all later calculus reasoning and for many models in Physics and engineering."
+          },
+          {
+            "id": "derivatives-as-rate-of-change",
+            "title": "Derivatives as Rate of Change",
+            "content": "# Derivatives as Rate of Change\n\nThe derivative measures the instantaneous rate of change of a function. If a function describes position, then its derivative describes velocity. If a function describes velocity, then its derivative describes acceleration. This is why the derivative is one of the most important links between Mathematics and Physics.\n\nConceptually, the derivative is the slope of the tangent line to a graph at a point. That slope tells us how quickly the output changes for a tiny change in the input. In many problems, this is written using the limit definition, which turns a difference quotient into an exact local rate. This idea is powerful because it captures change at a precise instant rather than only over a long interval.\n\nDerivatives are used to optimize quantities, study motion, and analyze functions. A business might use them to find maximum profit, while a scientist might use them to understand how fast a variable is changing. The derivative is therefore not just a formula; it is a way of thinking about change."
+          },
+          {
+            "id": "applications-of-derivatives",
+            "title": "Applications of Derivatives",
+            "content": "# Applications of Derivatives\n\nDerivatives are useful far beyond textbook exercises. They can identify when a function is increasing or decreasing, determine where a graph reaches a local maximum or minimum, and describe the behavior of a model in a precise way. In practical terms, derivatives tell us where change is fastest and where it slows down.\n\nA classic application is motion. If position is a function of time, then the first derivative gives velocity and the second derivative gives acceleration. That connection makes calculus essential in Physics, especially when studying displacement, momentum, and energy over time. Derivatives also support optimization, where we search for the best value of a variable subject to constraints.\n\nBecause derivatives encode rate of change, they are used in economics, biology, engineering, and data science as well. They help model how a quantity responds when another quantity changes. Once students understand derivatives as slope, change, and behavior on a graph, they can use them to interpret much more complicated equations with confidence."
+          }
+        ]
+      }
+    ]
+  }
+]
