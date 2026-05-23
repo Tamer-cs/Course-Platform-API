@@ -1,3 +1,4 @@
+
 package com.courseplatform.api.config;
 
 import com.courseplatform.api.dto.ErrorResponse;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,9 +28,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 @Configuration
@@ -44,7 +51,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-                return username -> userRepository.findWithRolesByEmail(normalizeEmail(username))
+        return username -> userRepository.findWithRolesByEmail(normalizeEmail(username))
                 .map(this::toSpringUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
@@ -52,8 +59,8 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Accepts UserDetailsService
-        authProvider.setPasswordEncoder(passwordEncoder);       // Accepts PasswordEncoder
+        authProvider.setUserDetailsService(userDetailsService); 
+        authProvider.setPasswordEncoder(passwordEncoder);       
         return authProvider;
     }
 
@@ -62,10 +69,31 @@ public class SecurityConfig {
         return new ProviderManager(authenticationProvider);
     }
 
+    // Explicit configuration source bean that Spring Security automatically detects
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   AuthenticationProvider authenticationProvider) throws Exception {
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // This explicitly allows your public dashboard, local dev environment, and wildcard headers
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://course-platform-api-production-6d24.up.railway.app",
+                "http://localhost:8080",
+                "http://localhost:8081"
+        ));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Accept"));
+        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults()) // Tells Spring Security to check the corsConfigurationSource bean
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -100,8 +128,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-        private UserDetails toSpringUserDetails(User user) {
-                return org.springframework.security.core.userdetails.User.builder()
+    private UserDetails toSpringUserDetails(User user) {
+        return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.name())).toList())
@@ -121,7 +149,7 @@ public class SecurityConfig {
         new ObjectMapper().writeValue(response.getWriter(), body);
     }
 
-        private String normalizeEmail(String email) {
-                return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
-        }
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
 }
