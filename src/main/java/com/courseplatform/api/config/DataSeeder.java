@@ -8,6 +8,8 @@ import com.courseplatform.api.model.User;
 import com.courseplatform.api.repository.CourseRepository;
 import com.courseplatform.api.repository.SubtopicRepository;
 import com.courseplatform.api.repository.UserRepository;
+import com.courseplatform.api.service.EmbeddingService;
+import com.courseplatform.api.util.VectorMathUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -42,6 +44,7 @@ public class DataSeeder implements ApplicationRunner {
     private final CourseRepository courseRepository;
     private final SubtopicRepository subtopicRepository;
     private final UserRepository userRepository;
+    private final EmbeddingService embeddingService;
     private final EntityManager entityManager;
 
     @Override
@@ -79,12 +82,31 @@ public class DataSeeder implements ApplicationRunner {
 
                     if (seedTopic.getSubtopics() != null) {
                         for (SeedSubtopic seedSubtopic : seedTopic.getSubtopics()) {
+                            String subtopicContent = seedSubtopic.getTitle() + " " + seedSubtopic.getContent();
+                            float[] floatVector = null;
+                            byte[] byteVector;
+                            try {
+                                floatVector = embeddingService.generateEmbedding(subtopicContent);
+                                byteVector = floatVector == null
+                                        ? new byte[0]
+                                        : VectorMathUtils.floatArrayToByteArray(floatVector);
+                            } catch (Exception exception) {
+                                log.warn(
+                                        "Embedding generation failed for subtopic {} during seeding; storing an empty vector instead: {}",
+                                        seedSubtopic.getId(),
+                                        exception.getMessage());
+                                byteVector = new byte[0];
+                            }
+                            if (byteVector == null) {
+                                byteVector = new byte[0];
+                            }
                             Subtopic subtopic = Subtopic.builder()
                                     .id(seedSubtopic.getId())
                                     .title(seedSubtopic.getTitle())
                                     .content(seedSubtopic.getContent())
                                     .topic(topic)
                                     .build();
+                            subtopic.setEmbeddingVector(byteVector);
                             subtopicsToPersist.add(subtopic);
                         }
                     }

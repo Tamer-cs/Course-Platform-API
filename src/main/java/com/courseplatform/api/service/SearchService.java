@@ -1,12 +1,17 @@
 package com.courseplatform.api.service;
 
 import com.courseplatform.api.dto.SearchQueryResultDTO;
+import com.courseplatform.api.model.Subtopic;
 import com.courseplatform.api.repository.CourseRepository;
+import com.courseplatform.api.repository.SubtopicRepository;
+import com.courseplatform.api.util.VectorMathUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class SearchService {
 
     private final CourseRepository courseRepository;
+    private final SubtopicRepository subtopicRepository;
     private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
     public List<SearchQueryResultDTO> search(String q) {
@@ -75,6 +81,51 @@ public class SearchService {
             results.add(dto);
         }
 
+        return results;
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchQueryResultDTO> performSemanticSearch(float[] queryVector, int limit) {
+        if (queryVector == null || queryVector.length == 0 || limit <= 0) {
+            return List.of();
+        }
+
+        List<SearchQueryResultDTO> results = new ArrayList<>();
+        List<Subtopic> subtopics = subtopicRepository.findAll();
+
+        for (Subtopic subtopic : subtopics) {
+            float[] storedVector = VectorMathUtils.fromByteArray(subtopic.getEmbeddingVector());
+            if (storedVector.length == 0) {
+                continue;
+            }
+
+            double score = VectorMathUtils.cosineSimilarity(queryVector, storedVector);
+            if (score <= 0.0d) {
+                continue;
+            }
+
+            String content = subtopic.getContent();
+            String plainContent = stripMarkdown(content == null ? "" : content);
+            String snippet = extractSnippet(plainContent, subtopic.getTitle());
+
+            SearchQueryResultDTO dto = SearchQueryResultDTO.builder()
+                    .courseId(subtopic.getTopic().getCourse().getId())
+                    .courseTitle(subtopic.getTopic().getCourse().getTitle())
+                    .topicTitle(subtopic.getTopic().getTitle())
+                    .subtopicId(subtopic.getId())
+                    .subtopicTitle(subtopic.getTitle())
+                    .relevanceScore(score)
+                    .excerptSnippet(snippet)
+                    .isFuzzyMatch(false)
+                    .build();
+
+            results.add(dto);
+        }
+
+        results.sort(Comparator.comparingDouble(SearchQueryResultDTO::getRelevanceScore).reversed());
+        if (results.size() > limit) {
+            return new ArrayList<>(results.subList(0, limit));
+        }
         return results;
     }
 

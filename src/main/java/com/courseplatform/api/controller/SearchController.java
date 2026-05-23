@@ -1,6 +1,7 @@
 package com.courseplatform.api.controller;
 
 import com.courseplatform.api.dto.SearchQueryResultDTO;
+import com.courseplatform.api.service.EmbeddingService;
 import com.courseplatform.api.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,18 @@ import java.util.List;
 public class SearchController {
 
     private final SearchService searchService;
+    private final EmbeddingService embeddingService;
 
     @GetMapping
     public ResponseEntity<List<SearchQueryResultDTO>> search(@RequestParam(name = "q") String q,
                                                               @RequestParam(name = "limit", required = false, defaultValue = "20") int limit) {
         return ResponseEntity.ok(searchService.search(q, limit));
+    }
+
+    @GetMapping("/semantic")
+    public ResponseEntity<List<SearchQueryResultDTO>> semanticSearch(@RequestParam(name = "q") String q,
+                                                                      @RequestParam(name = "limit", required = false, defaultValue = "3") int limit) {
+        float[] queryVector = embeddingService.generateEmbedding(q);
+        return ResponseEntity.ok(searchService.performSemanticSearch(queryVector, limit));
     }
 }

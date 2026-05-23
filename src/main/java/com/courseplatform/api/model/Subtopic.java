@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 
 import java.time.Instant;
 
@@ -27,6 +29,10 @@ public class Subtopic {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    @JdbcTypeCode(Types.VARBINARY)
+    @Column(name = "embedding_vector", columnDefinition = "bytea")
+    private byte[] embeddingVector;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)

@@ -44,6 +44,12 @@ The project is being built in staged sprints so the foundation stays stable whil
 	- Fuzzy search results set `isFuzzyMatch` to `true`.
 - Misspellings such as `velocoty`, `physcs`, or `accelaration` can still return relevant course content when trigram support is available.
 
+- Sprint 9 Semantic Embeddings: added ONNX-backed semantic vectors for subtopics.
+- `EmbeddingService` lazily loads a DJL Hugging Face ONNX model on demand and falls back to deterministic vectors if the model is unavailable.
+- Each subtopic is seeded with a combined `title + content` embedding and stored as a binary blob in PostgreSQL.
+- `GET /api/search/semantic?q={query}` converts the query into a 384-dimensional embedding and ranks subtopics by cosine similarity.
+- Semantic search reads the persisted embedding blobs back into `float[]` vectors so the app can compare semantic closeness without requiring `pgvector`.
+
 ## Security Model
 
 - Public routes: `/api/auth/**`, `/api/courses/**`, `/api/search/**`, `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs`, and `/v3/api-docs/**`.
@@ -127,9 +133,10 @@ http://localhost:8081/swagger-ui.html
 - Sprint 6: done
 - Sprint 7: done
 - Sprint 8: done
+- Sprint 9: done
 
 ## Next Step
 
-Add auth-focused integration tests, Swagger bearer-token documentation, and the later semantic/hybrid search stages.
+Add auth-focused integration tests, Swagger bearer-token documentation, and the later hybrid-search and deployment stages.
 
-If you'd like, I can also add example `curl` snippets for the search and enrollment endpoints and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.
+If you'd like, I can also add example `curl` snippets for the semantic search endpoint and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.
