@@ -29,6 +29,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "ResourceNotFoundException", ex.getMessage());
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> emailAlreadyExists(EmailAlreadyExistsException ex) {
+        return build(HttpStatus.CONFLICT, "EmailAlreadyExistsException", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String msg = ex.getBindingResult().getFieldErrors().stream()
