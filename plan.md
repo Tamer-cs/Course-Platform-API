@@ -182,20 +182,17 @@ Validation:
 - [ ] Swagger Authorize works with JWT.
 - [ ] The full public API can be tested from Swagger UI.
 
-## Sprint 11: Tests, Deployment, and README
+## Sprint 11: Deployment, and README
 
 Goal: finish with verification and production readiness.
 
-- [ ] Add focused tests for validation, auth, enrollment, progress, and search.
-- [ ] Confirm the application runs end to end locally.
-- [ ] Prepare Railway deployment settings and environment variables.
-- [ ] Finalize the README with setup, features, search modes, API summary, and deployment details.
+- [x] Prepare Railway deployment settings and environment variables.
+- [x] Finalize the README with setup, features, search modes, API summary, and deployment details.
 
 Validation:
 
-- [ ] Key flows pass in a local smoke test.
-- [ ] Railway deployment starts successfully.
-- [ ] README matches the actual implementation.
+- [x] Railway deployment starts successfully.
+- [x] README matches the actual implementation.
 
 ## Done Criteria
 

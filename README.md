@@ -1,151 +1,78 @@
 # Course Platform API
 
-Course Platform API is a Spring Boot REST service for learning content, authentication, progress tracking, and search.
+Course Platform API is a Spring Boot service for authenticated learning content, relational persistence, and intelligent search.
 
-## Overview
+## Features
 
-The project is being built in staged sprints so the foundation stays stable while features are added.
+- JWT-based authentication with role-based access control.
+- Request validation for auth, enrollment, progress, and search flows.
+- Relational persistence for users, courses, topics, subtopics, enrollments, and progress.
+- Swagger/OpenAPI documentation for quick API discovery and manual verification.
+- Search across course metadata and semantic text embeddings.
 
-## Implemented So Far
+## Search
 
-- Spring Boot 4 / Java 17 baseline with PostgreSQL, Spring Data JPA, Lombok, Validation, Spring Security, JWT, and Springdoc OpenAPI configured.
-- Persistence layer for users, courses, topics, subtopics, enrollment, progress, and embeddings is in place.
-- DTOs, mappers, and centralized exception handling are implemented so controllers can stay entity-free.
-- Sprint 3 core text seeding is implemented with a transactional `DataSeeder` and a rich `courses.json` catalog.
-- A fallback instructor user is created automatically for seeding, and seeded content is attached through parent-child JPA relationships.
-- Sprint 4 course read endpoints are implemented with a public controller and read-only service layer.
-- `GET /api/courses` returns lightweight course summaries.
-- `GET /api/courses/{id}` returns a deeply nested course tree with topics and subtopics.
-- Sprint 5 authentication and security are implemented with stateless JWT login and registration.
-- `POST /api/auth/register` creates a user and returns a JWT.
-- `POST /api/auth/login` authenticates a user and returns a JWT.
-- JWT-protected requests must send `Authorization: Bearer <token>`.
-- Passwords are hashed with `BCryptPasswordEncoder`.
-- Swagger/OpenAPI is available through Springdoc 3.x and is compatible with Spring Boot 4.
+- Traditional metadata filtering ranks matches across course, topic, and subtopic titles and content.
+- Semantic Text Analysis uses the DJL, HuggingFace tokenizer, and ONNX Runtime pipeline to compare user queries against stored embeddings.
+- Hybrid search combines keyword relevance with semantic similarity and deduplicates results by `subtopicId`.
 
-- Sprint 6 enrollment and progress tracking are implemented for authenticated learners.
-- `POST /api/enrollments/join/{courseId}` — enrolls the authenticated user in a course (returns `201 Created`).
-	- Duplicate enrollments return `409 Conflict`.
-- `POST /api/progress/complete/{subtopicId}` — marks a subtopic complete for the authenticated user (idempotent).
-	- Requires the user to be enrolled in the parent course; otherwise returns `403 Forbidden`.
-	- Repeating a completion request does not create duplicate records and returns success.
-	- Responses include a `completionPercentage` value formatted with exactly two decimal places (e.g. `75.50`).
+## Quickstart
 
-- Sprint 7 Keyword Search: implemented a weighted native search across courses, topics, and subtopics.
-- `GET /api/search?q={query}` — searches course titles, topic titles, subtopic titles, and subtopic content.
-  - Results include `relevanceScore` (higher = better), `excerptSnippet` (cleaned of Markdown), and `isFuzzyMatch` (false for now).
-  - Weighted ranking prioritizes matches in this order: Course title > Topic title > Subtopic title > Subtopic content.
-  - The search endpoint is public (no JWT required) and supports an optional `limit` query parameter.
+Build the application without running the local test lifecycle:
 
-- Sprint 8 Fuzzy Search: added a trigram-based fallback for typo-tolerant search.
-- When keyword search returns no rows, the service falls back to PostgreSQL `pg_trgm` similarity search.
-- `CREATE EXTENSION IF NOT EXISTS pg_trgm;` is attempted at startup in a crash-resistant initializer.
-	- Permission errors or restricted database roles do not stop the app from booting.
-	- Fuzzy search results set `isFuzzyMatch` to `true`.
-- Misspellings such as `velocoty`, `physcs`, or `accelaration` can still return relevant course content when trigram support is available.
+```bash
+./mvnw clean package -DskipTests
+```
 
-- Sprint 9 Semantic Embeddings: added ONNX-backed semantic vectors for subtopics.
-- `EmbeddingService` lazily loads a DJL Hugging Face ONNX model on demand and falls back to deterministic vectors if the model is unavailable.
-- Each subtopic is seeded with a combined `title + content` embedding and stored as a binary blob in PostgreSQL.
-- `GET /api/search/semantic?q={query}` converts the query into a 384-dimensional embedding and ranks subtopics by cosine similarity.
-- Semantic search reads the persisted embedding blobs back into `float[]` vectors so the app can compare semantic closeness without requiring `pgvector`.
+Run the application:
 
-- Sprint 10 Hybrid Search and Swagger Setup: added a blended search mode and documented JWT support in OpenAPI.
-- `GET /api/search/hybrid?q={query}` combines keyword/fuzzy ranking with semantic ranking and deduplicates subtopics by id.
-- Swagger/OpenAPI now advertises a global bearer scheme, so the Authorize dialog accepts `Bearer <JWT>` for protected endpoints.
-- Protected requests use stateless JWT authentication only; form login and HTTP basic remain disabled.
-- JWT authentication normalizes email addresses, loads user roles eagerly, and populates the security context before controller execution.
+```bash
+./mvnw spring-boot:run
+```
 
-## Security Model
+On Windows, use the wrapper command:
 
-- Public routes: `/api/auth/**`, `/api/courses/**`, `/api/search/**`, `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs`, and `/v3/api-docs/**`.
-- All other routes require a valid JWT.
-- Sessions are stateless and Spring Security form login / HTTP basic are disabled.
-- API errors are returned through the shared `ErrorResponse` shape and the global exception handler.
-- The security layer uses a JWT filter ahead of username/password authentication, while the login flow still uses Spring Security's `AuthenticationManager`.
+```powershell
+.\mvnw.cmd clean package -DskipTests
+.\mvnw.cmd spring-boot:run
+```
 
-## Authentication
+## API Docs
 
-- Registration uses `AuthRegisterRequest` and login uses `LoginRequest`.
-- Successful authentication returns `AuthResponse` with a token.
-- Email addresses are normalized to lowercase before persistence and authentication.
-- Duplicate registration returns `409 Conflict`.
-- Invalid credentials return `401 Unauthorized`.
-- Swagger protected requests can reuse the same JWT returned by `/api/auth/register` or `/api/auth/login`.
+- Swagger UI: `/swagger-ui/index.html`
+- OpenAPI spec: `/v3/api-docs`
 
-## Configuration
+## Deployment Variables
 
-Create a root `.env` file with the values used by the app:
+Configure these environment variables in Railway or any equivalent cloud environment:
+
+- `JDBC_DATABASE_URL` - full PostgreSQL JDBC URL for the managed database.
+- `PGUSER` - PostgreSQL username.
+- `PGPASSWORD` - PostgreSQL password.
+- `JWT_SECRET` - signing secret for JWT generation and validation.
+- `JWT_EXPIRATION` - token lifetime in milliseconds.
+
+Optional local fallback variables are also supported:
 
 - `DATABASE_URL`
 - `DATABASE_USERNAME`
 - `DATABASE_PASSWORD`
-- `JWT_SECRET`
-- `JWT_EXPIRATION`
 
-`JWT_SECRET` can be a raw secret string. `JWT_EXPIRATION` is the token lifetime in milliseconds.
+## Railway Notes
 
-## Seeding
+- `system.properties` pins the runtime to Java 17.
+- The application listens on `PORT` when Railway provides it.
+- Hibernate runs with `ddl-auto=update` so schema changes are applied automatically at startup.
 
-On startup, the app checks whether courses already exist.
+## Endpoint Highlights
 
-- If the database is empty, the seeder loads `src/main/resources/courses.json`, creates the fallback instructor owner, and inserts courses, topics, and subtopics.
-- If courses already exist, the seeder logs a message and skips the import.
-- The seed catalog currently includes 2 courses, 6 topics, and 18 subtopics.
+- `POST /api/auth/register` - create a user and return a JWT.
+- `POST /api/auth/login` - authenticate a user and return a JWT.
+- `GET /api/search/hybrid?q={query}&limit={limit}` - blended keyword and semantic search.
+- `POST /api/enrollments/join/{courseId}` - enroll the authenticated user in a course.
 
-## Local Setup
+## Notes
 
-1. Install Java 17.
-2. Create a root `.env` file with database and JWT values.
-3. Use the Windows JDK 17 override if Maven reports a compiler error.
-4. Run the app with:
-
-```powershell
-.\mvnw.cmd clean spring-boot:run
-```
-
-To verify the OpenAPI docs, open:
-
-```text
-http://localhost:8081/v3/api-docs
-```
-
-Swagger UI is available at:
-
-```text
-http://localhost:8081/swagger-ui.html
-```
-
-## Current Base Structure
-
-- `controller`
-- `service`
-- `repository`
-- `entity`
-- `dto`
-- `mapper`
-- `security`
-- `config`
-- `search`
-- `exception`
-- `util`
-
-## Current Status
-
-- Sprint 0: done
-- Sprint 1: done
-- Sprint 2: done
-- Sprint 3: done
-- Sprint 4: done
-- Sprint 5: done
-- Sprint 6: done
-- Sprint 7: done
-- Sprint 8: done
-- Sprint 9: done
-- Sprint 10: done
-
-## Next Step
-
-Add integration tests around authenticated enrollment/progress flows and prepare deployment packaging.
-
-If you'd like, I can also add example `curl` snippets for the hybrid search endpoint and a short auth walkthrough for Swagger UI.
+- The application uses stateless JWT security.
+- PostgreSQL is the production database.
+- H2 is used only for tests.
