@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +22,12 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class SearchService {
 
+    private static final double DEFAULT_KEYWORD_WEIGHT = 0.5d;
+    private static final double DEFAULT_SEMANTIC_WEIGHT = 0.5d;
+
     private final CourseRepository courseRepository;
     private final SubtopicRepository subtopicRepository;
+    private final EmbeddingService embeddingService;
     private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
     public List<SearchQueryResultDTO> search(String q) {
@@ -81,6 +87,72 @@ public class SearchService {
             results.add(dto);
         }
 
+        return results;
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchQueryResultDTO> hybridSearch(String q, int limit) {
+        return hybridSearch(q, limit, DEFAULT_KEYWORD_WEIGHT, DEFAULT_SEMANTIC_WEIGHT);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SearchQueryResultDTO> hybridSearch(String q, int limit, double keywordWeight, double semanticWeight) {
+        if (q == null || q.isBlank() || limit <= 0) {
+            return List.of();
+        }
+
+        double safeKeywordWeight = Math.max(0.0d, keywordWeight);
+        double safeSemanticWeight = Math.max(0.0d, semanticWeight);
+
+        List<SearchQueryResultDTO> keywordResults = normalizeScores(search(q, limit));
+
+        float[] queryVector;
+        try {
+            queryVector = embeddingService.generateEmbedding(q);
+        } catch (Exception exception) {
+            logger.warn("Hybrid semantic embedding generation failed for query '{}': {}", q, exception.getMessage());
+            logger.debug("Hybrid semantic embedding generation failure", exception);
+            queryVector = new float[0];
+        }
+
+        List<SearchQueryResultDTO> semanticResults = normalizeScores(performSemanticSearch(queryVector, limit));
+
+        Map<String, HybridCandidate> merged = new HashMap<>();
+        for (SearchQueryResultDTO result : keywordResults) {
+            if (result.getSubtopicId() == null) {
+                continue;
+            }
+            HybridCandidate candidate = merged.computeIfAbsent(result.getSubtopicId(), key -> new HybridCandidate());
+            candidate.dto = pickPreferred(candidate.dto, result);
+            candidate.keywordScore = result.getRelevanceScore();
+        }
+
+        for (SearchQueryResultDTO result : semanticResults) {
+            if (result.getSubtopicId() == null) {
+                continue;
+            }
+            HybridCandidate candidate = merged.computeIfAbsent(result.getSubtopicId(), key -> new HybridCandidate());
+            candidate.dto = pickPreferred(candidate.dto, result);
+            candidate.semanticScore = result.getRelevanceScore();
+        }
+
+        List<SearchQueryResultDTO> results = new ArrayList<>();
+        for (HybridCandidate candidate : merged.values()) {
+            double keywordScore = candidate.keywordScore == null ? 0.0d : candidate.keywordScore;
+            double semanticScore = candidate.semanticScore == null ? 0.0d : candidate.semanticScore;
+            double hybridScore = (keywordScore * safeKeywordWeight) + (semanticScore * safeSemanticWeight);
+
+            SearchQueryResultDTO dto = candidate.dto == null ? null : copyWithScore(candidate.dto, hybridScore);
+            if (dto == null) {
+                continue;
+            }
+            results.add(dto);
+        }
+
+        results.sort(Comparator.comparingDouble(SearchQueryResultDTO::getRelevanceScore).reversed());
+        if (results.size() > limit) {
+            return new ArrayList<>(results.subList(0, limit));
+        }
         return results;
     }
 
@@ -187,5 +259,79 @@ public class SearchService {
             if (c != null && !c.isBlank()) return c;
         }
         return null;
+    }
+
+    private List<SearchQueryResultDTO> normalizeScores(List<SearchQueryResultDTO> results) {
+        if (results == null || results.isEmpty()) {
+            return List.of();
+        }
+        if (results.size() == 1) {
+            List<SearchQueryResultDTO> single = new ArrayList<>(1);
+            single.add(copyWithScore(results.get(0), 1.0d));
+            return single;
+        }
+
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        for (SearchQueryResultDTO result : results) {
+            double score = result.getRelevanceScore() == null ? 0.0d : result.getRelevanceScore();
+            min = Math.min(min, score);
+            max = Math.max(max, score);
+        }
+
+        if (Double.compare(min, max) == 0) {
+            List<SearchQueryResultDTO> equal = new ArrayList<>(results.size());
+            for (SearchQueryResultDTO result : results) {
+                equal.add(copyWithScore(result, 1.0d));
+            }
+            return equal;
+        }
+
+        double range = max - min;
+        List<SearchQueryResultDTO> normalized = new ArrayList<>(results.size());
+        for (SearchQueryResultDTO result : results) {
+            double score = result.getRelevanceScore() == null ? 0.0d : result.getRelevanceScore();
+            double normalizedScore = (score - min) / range;
+            normalized.add(copyWithScore(result, normalizedScore));
+        }
+        return normalized;
+    }
+
+    private SearchQueryResultDTO copyWithScore(SearchQueryResultDTO source, double score) {
+        if (source == null) {
+            return null;
+        }
+        return SearchQueryResultDTO.builder()
+                .courseId(source.getCourseId())
+                .courseTitle(source.getCourseTitle())
+                .topicTitle(source.getTopicTitle())
+                .subtopicId(source.getSubtopicId())
+                .subtopicTitle(source.getSubtopicTitle())
+                .relevanceScore(score)
+                .excerptSnippet(source.getExcerptSnippet())
+                .isFuzzyMatch(source.getIsFuzzyMatch())
+                .build();
+    }
+
+    private SearchQueryResultDTO pickPreferred(SearchQueryResultDTO current, SearchQueryResultDTO incoming) {
+        if (current == null) {
+            return incoming;
+        }
+        if (current.getExcerptSnippet() == null || current.getExcerptSnippet().isBlank()) {
+            return incoming;
+        }
+        if (incoming != null && incoming.getExcerptSnippet() != null && !incoming.getExcerptSnippet().isBlank()) {
+            return incoming.getRelevanceScore() != null && current.getRelevanceScore() != null
+                    && incoming.getRelevanceScore() > current.getRelevanceScore()
+                    ? incoming
+                    : current;
+        }
+        return current;
+    }
+
+    private static final class HybridCandidate {
+        private SearchQueryResultDTO dto;
+        private Double keywordScore;
+        private Double semanticScore;
     }
 }

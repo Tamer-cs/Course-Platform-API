@@ -11,10 +11,9 @@ import com.courseplatform.api.repository.CourseRepository;
 import com.courseplatform.api.repository.EnrollmentRepository;
 import com.courseplatform.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,17 +51,17 @@ public class EnrollmentService {
 
     private User currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new BadCredentialsException("Unauthorized");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("Authenticated request required");
         }
 
-        Object principal = authentication.getPrincipal();
-        String email = principal instanceof UserDetails userDetails
-                ? userDetails.getUsername()
-                : String.valueOf(principal);
+        String email = authentication.getName();
+        if (email == null || email.isBlank() || "anonymousUser".equalsIgnoreCase(email)) {
+            throw new AccessDeniedException("Authenticated user not found in security context");
+        }
 
         String normalizedEmail = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
         return userRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new BadCredentialsException("Authenticated user not found"));
+                .orElseThrow(() -> new AccessDeniedException("Authenticated user not found"));
     }
 }

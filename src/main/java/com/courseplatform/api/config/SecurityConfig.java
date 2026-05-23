@@ -29,6 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Locale;
 
 @Configuration
 @RequiredArgsConstructor
@@ -43,7 +44,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository.findByEmail(username)
+                return username -> userRepository.findWithRolesByEmail(normalizeEmail(username))
                 .map(this::toSpringUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
@@ -69,13 +70,12 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> writeError(
                                 response,
                                 HttpStatus.UNAUTHORIZED,
-                                "BadCredentialsException",
-                                "Unauthorized"
+                                "Unauthorized",
+                                authException == null ? "Unauthorized" : authException.getMessage()
                         ))
                         .accessDeniedHandler((request, response, accessDeniedException) -> writeError(
                                 response,
@@ -120,4 +120,8 @@ public class SecurityConfig {
 
         new ObjectMapper().writeValue(response.getWriter(), body);
     }
+
+        private String normalizeEmail(String email) {
+                return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+        }
 }

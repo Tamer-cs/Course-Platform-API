@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                String email = jwtService.extractUsername(token);
-                User user = userRepository.findByEmail(email)
+            String email = normalizeEmail(jwtService.extractUsername(token));
+            User user = userRepository.findWithRolesByEmail(email)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
                 UserDetails userDetails = buildUserDetails(user);
 
@@ -70,5 +71,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .password(user.getPassword())
                 .authorities(user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.name())).toList())
                 .build();
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 }
