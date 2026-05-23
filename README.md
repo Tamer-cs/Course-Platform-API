@@ -31,6 +31,12 @@ The project is being built in staged sprints so the foundation stays stable whil
 	- Repeating a completion request does not create duplicate records and returns success.
 	- Responses include a `completionPercentage` value formatted with exactly two decimal places (e.g. `75.50`).
 
+- Sprint 7 Keyword Search: implemented a weighted native search across courses, topics, and subtopics.
+- `GET /api/search?q={query}` — searches course titles, topic titles, subtopic titles, and subtopic content.
+  - Results include `relevanceScore` (higher = better), `excerptSnippet` (cleaned of Markdown), and `isFuzzyMatch` (false for now).
+  - Weighted ranking prioritizes matches in this order: Course title > Topic title > Subtopic title > Subtopic content.
+  - The search endpoint is public (no JWT required) and supports an optional `limit` query parameter.
+
 ## Security Model
 
 - Public routes: `/api/auth/**`, `/api/courses/**`, `/api/search/**`, `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs`, and `/v3/api-docs/**`.
@@ -112,9 +118,10 @@ http://localhost:8081/swagger-ui.html
 - Sprint 4: done
 - Sprint 5: done
  - Sprint 6: done
+ - Sprint 7: done
 
 ## Next Step
 
-Add auth-focused integration tests and Swagger bearer-token documentation.
+Add fuzzy search (pg_trgm), auth-focused integration tests, and Swagger bearer-token documentation.
 
 If you'd like, I can also add example `curl` snippets for the new endpoints and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.
