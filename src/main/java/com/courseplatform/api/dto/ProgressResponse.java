@@ -13,5 +13,7 @@ public class ProgressResponse {
     private Long id;
     private String subtopicId;
     private Long userId;
-    private String completedAt; // ISO string
+    private String courseId;
+    private String completedAt;
+    private String completionPercentage;
 }

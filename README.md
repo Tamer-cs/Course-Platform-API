@@ -23,6 +23,14 @@ The project is being built in staged sprints so the foundation stays stable whil
 - Passwords are hashed with `BCryptPasswordEncoder`.
 - Swagger/OpenAPI is available through Springdoc 3.x and is compatible with Spring Boot 4.
 
+- Sprint 6 enrollment and progress tracking are implemented for authenticated learners.
+- `POST /api/enrollments/join/{courseId}` — enrolls the authenticated user in a course (returns `201 Created`).
+	- Duplicate enrollments return `409 Conflict`.
+- `POST /api/progress/complete/{subtopicId}` — marks a subtopic complete for the authenticated user (idempotent).
+	- Requires the user to be enrolled in the parent course; otherwise returns `403 Forbidden`.
+	- Repeating a completion request does not create duplicate records and returns success.
+	- Responses include a `completionPercentage` value formatted with exactly two decimal places (e.g. `75.50`).
+
 ## Security Model
 
 - Public routes: `/api/auth/**`, `/api/courses/**`, `/api/search/**`, `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs`, and `/v3/api-docs/**`.
@@ -103,7 +111,10 @@ http://localhost:8081/swagger-ui.html
 - Sprint 3: done
 - Sprint 4: done
 - Sprint 5: done
+ - Sprint 6: done
 
 ## Next Step
 
 Add auth-focused integration tests and Swagger bearer-token documentation.
+
+If you'd like, I can also add example `curl` snippets for the new endpoints and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.

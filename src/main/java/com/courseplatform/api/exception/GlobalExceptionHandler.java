@@ -34,6 +34,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "EmailAlreadyExistsException", ex.getMessage());
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> conflict(ConflictException ex) {
+        return build(HttpStatus.CONFLICT, "ConflictException", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String msg = ex.getBindingResult().getFieldErrors().stream()
