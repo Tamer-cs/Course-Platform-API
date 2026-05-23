@@ -37,6 +37,13 @@ The project is being built in staged sprints so the foundation stays stable whil
   - Weighted ranking prioritizes matches in this order: Course title > Topic title > Subtopic title > Subtopic content.
   - The search endpoint is public (no JWT required) and supports an optional `limit` query parameter.
 
+- Sprint 8 Fuzzy Search: added a trigram-based fallback for typo-tolerant search.
+- When keyword search returns no rows, the service falls back to PostgreSQL `pg_trgm` similarity search.
+- `CREATE EXTENSION IF NOT EXISTS pg_trgm;` is attempted at startup in a crash-resistant initializer.
+	- Permission errors or restricted database roles do not stop the app from booting.
+	- Fuzzy search results set `isFuzzyMatch` to `true`.
+- Misspellings such as `velocoty`, `physcs`, or `accelaration` can still return relevant course content when trigram support is available.
+
 ## Security Model
 
 - Public routes: `/api/auth/**`, `/api/courses/**`, `/api/search/**`, `/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs`, and `/v3/api-docs/**`.
@@ -117,11 +124,12 @@ http://localhost:8081/swagger-ui.html
 - Sprint 3: done
 - Sprint 4: done
 - Sprint 5: done
- - Sprint 6: done
- - Sprint 7: done
+- Sprint 6: done
+- Sprint 7: done
+- Sprint 8: done
 
 ## Next Step
 
-Add fuzzy search (pg_trgm), auth-focused integration tests, and Swagger bearer-token documentation.
+Add auth-focused integration tests, Swagger bearer-token documentation, and the later semantic/hybrid search stages.
 
-If you'd like, I can also add example `curl` snippets for the new endpoints and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.
+If you'd like, I can also add example `curl` snippets for the search and enrollment endpoints and wire the global OpenAPI security scheme so Swagger's "Authorize" accepts JWTs.
